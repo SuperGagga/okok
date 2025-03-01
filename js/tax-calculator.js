@@ -11,23 +11,36 @@ const taxBrackets = [
 ];
 
 function goToStep(step) {
-  document.querySelectorAll(".step-content").forEach(el => {
-    el.classList.add("d-none");
-  });
-  document.querySelectorAll(".step-indicator .step").forEach(el => {
-    el.classList.remove("active");
-  });
+  document.querySelectorAll(".step-content").forEach(el => el.classList.add("d-none"));
+  document.querySelectorAll(".step-indicator .step").forEach(el => el.classList.remove("active"));
   document.getElementById(`step-${step}`).classList.remove("d-none");
   document.querySelectorAll(".step-indicator .step")[step - 1].classList.add("active");
   currentStep = step;
+  
+  if (step === 2) {
+    updateStep2();
+  }
   if (step === 7) {
     calculateTax();
   }
 }
 
 function getValue(id) {
-  // รับค่าจาก input type="text" แล้วลบ comma
   return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
+}
+
+function updateStep2() {
+  // คำนวณรายได้รวมจาก Step 1
+  const salary = getValue("salary");
+  const bonus = getValue("bonus");
+  const otherIncome = getValue("otherIncome");
+  const totalIncome = salary + bonus + otherIncome;
+  
+  // ค่าใช้จ่ายเงินประเภทที่ 1 = 50% ของรายได้ (ปัดเศษลง) แต่ไม่เกิน 100,000 บาท
+  const PersonalPaymentDeduction = Math.floor(totalIncome * 0.5);
+  const PersonalPaymentDeductionFinal = Math.min(PersonalPaymentDeduction, 100000);
+  
+  document.getElementById("personalPaymentDeductionFinal").value = PersonalPaymentDeductionFinal.toLocaleString();
 }
 
 function calculateTax() {
@@ -38,24 +51,34 @@ function calculateTax() {
   const totalIncome = salary + bonus + otherIncome;
   
   // ====== ลดหย่อนส่วนบุคคล/ครอบครัว (Group 1: Step 2) ======
+  const personalPaymentDeductionFinal = getValue("personalPaymentDeductionFinal");
   const fixedPersonalDeduction = 60000;
   const spouseDeduction = document.getElementById("spouseEligible").checked ? 60000 : 0;
   const spouseDisabledDeduction = (document.getElementById("spouseEligible").checked && document.getElementById("spouseDisabled").checked) ? 60000 : 0;
   const pregnancyDeduction = Math.min(getValue("pregnancyDeduction"), 60000);
   
-  const legalChildren = parseInt(document.getElementById("legalChildren").value) || 0;
-  let legalChildrenDeduction = legalChildren > 0 ? 30000 + ((legalChildren - 1) * 60000) : 0;
-  
+  // คำนวณลดหย่อนบุตรชอบด้วยกฎหมาย:
+  const legalChildrenOlder = parseInt(document.getElementById("legalChildrenOlder").value) || 0;
+  const legalChildrenYounger = parseInt(document.getElementById("legalChildrenYounger").value) || 0;
+  let totalLegalChildren = legalChildrenOlder + legalChildrenYounger;
+  let legalChildrenDeduction = 0;
+  if (totalLegalChildren > 0) {
+    // ลูกคนแรก ลดหย่อนได้ 30,000 บาท
+    legalChildrenDeduction = 30000;
+    // ลูกคนที่สองขึ้นไป ลดหย่อนได้ 60,000 บาทต่อคน
+    if (totalLegalChildren > 1) {
+      legalChildrenDeduction += (totalLegalChildren - 1) * 60000;
+    }
+  }
   const adoptedChildren = parseInt(document.getElementById("adoptedChildren").value) || 0;
   const adoptedChildrenDeduction = Math.min(adoptedChildren, 3) * 30000;
-  
   const parentalCount = parseInt(document.getElementById("parentalCount").value) || 0;
   const parentalDeduction = Math.min(parentalCount, 4) * 30000;
-  
   const disabilityCount = parseInt(document.getElementById("disabilityCount").value) || 0;
   const disabilityDeduction = disabilityCount * 60000;
   
-  const totalPersonalDeduction = fixedPersonalDeduction +
+  const totalPersonalDeduction = personalPaymentDeductionFinal +
+                                 fixedPersonalDeduction +
                                  spouseDeduction +
                                  spouseDisabledDeduction +
                                  pregnancyDeduction +
@@ -67,25 +90,21 @@ function calculateTax() {
   // ====== ลดหย่อนกลุ่มกระตุ้นเศรษฐกิจ (Group 2: Step 3) ======
   const easyEReceipt = Math.min(getValue("easyEReceipt"), 50000);
   const housingInterest = Math.min(getValue("housingInterest"), 100000);
-  
   let newHouseRaw = getValue("newHouse");
   if(newHouseRaw > 10000000) { newHouseRaw = 10000000; }
   const newHouseDeduction = Math.min(Math.floor(newHouseRaw / 1000000) * 10000, 100000);
-  
   const provincialTour = Math.min(getValue("provincialTour"), 15000);
   const totalEconomicDeduction = easyEReceipt + housingInterest + newHouseDeduction + provincialTour;
   
-  // ====== ลดหย่อนภาษีกลุ่มประกัน/เงินออม/การลงทุน (Group 3: Steps 4 & 5) ======
+  // ====== ลดหย่อนกลุ่มประกัน/เงินออม/การลงทุน (Group 3: Steps 4 & 5) ======
   const socialSecurityDeduction = Math.min(getValue("socialSecurity"), 9000);
   const lifeInsuranceRaw = getValue("lifeInsurance");
   const lifeInsuranceDeduction = Math.min(lifeInsuranceRaw, 100000);
-  
   let healthInsuranceSelfRaw = getValue("healthInsuranceSelf");
   let healthInsuranceSelfDeduction = Math.min(healthInsuranceSelfRaw, 25000);
   if (lifeInsuranceDeduction + healthInsuranceSelfDeduction > 100000) {
     healthInsuranceSelfDeduction = Math.max(0, 100000 - lifeInsuranceDeduction);
   }
-  
   const healthInsuranceParentsDeduction = Math.min(getValue("healthInsuranceParents"), 15000);
   const spouseInsuranceRaw = getValue("spouseInsurance");
   const spouseInsuranceDeductionFinal = Math.min(spouseInsuranceRaw, 10000);
@@ -156,49 +175,154 @@ function calculateTax() {
     }
   }
   
-  // ====== แสดงผลลัพธ์ใน Step 7 ======
+  // ====== แสดงผลใน Step 7 ======
   document.getElementById("totalIncomeDisplay").innerText = totalIncome.toLocaleString();
   document.getElementById("totalDeductionDisplay").innerText = totalDeduction.toLocaleString();
   document.getElementById("taxDisplay").innerText = tax.toLocaleString();
   
-  const tableBody = document.getElementById("taxTableBody");
-  tableBody.innerHTML = "";
+  let taxTableHTML = "";
   breakdown.forEach(row => {
-    tableBody.innerHTML += `<tr style="background-color: ${row.bgColor}">
-                              <td>${row.range}</td>
-                              <td>${row.rate}</td>
-                              <td>${row.tax}</td>
-                            </tr>`;
+    taxTableHTML += `<tr style="background-color: ${row.bgColor}">
+                       <td>${row.range}</td>
+                       <td>${row.rate}</td>
+                       <td>${row.tax}</td>
+                     </tr>`;
   });
+  document.getElementById("taxTableBody").innerHTML = taxTableHTML;
   
-  // แสดงรายละเอียดลดหย่อนในแต่ละกลุ่ม
+  // สร้างตารางรายละเอียดลดหย่อนที่ละเอียดขึ้น
   const deductionBreakdownHTML = `
-    <table class="table">
+    <table class="table table-bordered">
       <thead>
         <tr>
           <th>หมวดลดหย่อน</th>
+          <th>รายละเอียด</th>
           <th>จำนวนเงิน (บาท)</th>
         </tr>
       </thead>
       <tbody>
+        <!-- Group 1: ส่วนบุคคล/ครอบครัว -->
         <tr>
-          <td>ส่วนบุคคล/ครอบครัว</td>
-          <td>${totalPersonalDeduction.toLocaleString()}</td>
+          <td rowspan="9">ส่วนบุคคล/ครอบครัว</td>
+          <td>ค่าใช้จ่ายเงินประเภทที่ 1 (50% ของรายได้, ไม่เกิน 100,000 บาท)</td>
+          <td>${getValue("personalPaymentDeductionFinal").toLocaleString()}</td>
         </tr>
         <tr>
-          <td>กระตุ้นเศรษฐกิจ</td>
-          <td>${totalEconomicDeduction.toLocaleString()}</td>
+          <td>ค่าลดหย่อนส่วนบุคคล (60,000 บาท)</td>
+          <td>${fixedPersonalDeduction.toLocaleString()}</td>
         </tr>
         <tr>
-          <td>ประกัน/เงินออม/การลงทุน</td>
-          <td>${totalInsuranceInvestmentDeduction.toLocaleString()}</td>
+          <td>คู่สมรส (60,000 บาท)</td>
+          <td>${spouseDeduction.toLocaleString()}</td>
         </tr>
         <tr>
-          <td>เงินบริจาค</td>
-          <td>${totalDonationDeduction.toLocaleString()}</td>
+          <td>คู่สมรสพิการ (60,000 บาท)</td>
+          <td>${spouseDisabledDeduction.toLocaleString()}</td>
         </tr>
         <tr>
-          <th>รวมลดหย่อน</th>
+          <td>ฝากครรภ์และคลอดบุตร (จ่ายจริง, max 60,000)</td>
+          <td>${pregnancyDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>บุตรชอบด้วยกฎหมาย (รวมเด็กอายุ 7 ปีขึ้นไปและน้อยกว่า)</td>
+          <td>${legalChildrenDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>บุตรบุญธรรม (สูงสุด 3 คน)</td>
+          <td>${adoptedChildrenDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>เลี้ยงดูบิดามารดา (สูงสุด 4 คน)</td>
+          <td>${parentalDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>อุปการะผู้พิการ/ทุพลภาพ</td>
+          <td>${disabilityDeduction.toLocaleString()}</td>
+        </tr>
+        <!-- Group 2: กระตุ้นเศรษฐกิจ -->
+        <tr>
+          <td rowspan="4">กระตุ้นเศรษฐกิจ</td>
+          <td>Easy e-Receipt 2567</td>
+          <td>${easyEReceipt.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>ดอกเบี้ยที่อยู่อาศัย</td>
+          <td>${housingInterest.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>ค่าสร้างบ้านใหม่ 2567-2568</td>
+          <td>${newHouseDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>เที่ยวเมืองรอง 2567</td>
+          <td>${provincialTour.toLocaleString()}</td>
+        </tr>
+        <!-- Group 3: ประกัน/เงินออม/การลงทุน -->
+        <tr>
+          <td rowspan="12">ประกัน/เงินออม/การลงทุน</td>
+          <td>ประกันสังคม</td>
+          <td>${socialSecurityDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>เบี้ยประกันชีวิต/สะสมทรัพย์</td>
+          <td>${lifeInsuranceDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>เบี้ยประกันสุขภาพ (ตัวเอง)</td>
+          <td>${healthInsuranceSelfDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>เบี้ยประกันสุขภาพ (บิดามารดา)</td>
+          <td>${healthInsuranceParentsDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>เบี้ยประกันชีวิตคู่สมรส</td>
+          <td>${spouseInsuranceDeductionFinal.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>เงินลงทุนธุรกิจ Social Enterprise</td>
+          <td>${socialEnterpriseInvestmentDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>กองทุน ThaiESG</td>
+          <td>${thaiESGDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>กองทุน RMF</td>
+          <td>${rmfDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>กองทุน SSF</td>
+          <td>${ssfDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>กองทุน PVD/สงเคราะห์ครู</td>
+          <td>${pvdDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>กองทุนการออมแห่งชาติ</td>
+          <td>${savingsDeduction.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>เบี้ยประกันชีวิตแบบบำนาญ</td>
+          <td>${pensionInsuranceDeduction.toLocaleString()}</td>
+        </tr>
+        <!-- Group 4: เงินบริจาค -->
+        <tr>
+          <td rowspan="3">เงินบริจาค</td>
+          <td>เงินบริจาคทั่วไป</td>
+          <td>${generalDonation.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>เงินบริจาคเพื่อการศึกษา/กีฬา/พัฒนาสังคม/สถานพยาบาล (2 เท่า)</td>
+          <td>${(2 * educationDonation).toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td>เงินบริจาคให้กับพรรคการเมือง</td>
+          <td>${politicalDonation.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <th colspan="2">รวมลดหย่อน</th>
           <th>${totalDeduction.toLocaleString()}</th>
         </tr>
       </tbody>
@@ -208,22 +332,27 @@ function calculateTax() {
 }
 
 function formatNumberInput(input) {
-  // ลบ comma ก่อน แล้วตรวจสอบว่าเป็นตัวเลขหรือไม่
   let value = input.value.replace(/,/g, '');
   if (!isNaN(value) && value !== '') {
     input.value = parseFloat(value).toLocaleString();
   }
 }
   
-// ใช้ event onblur เพื่อทำการ format หลังจากผู้ใช้พิมพ์เสร็จแล้ว
 document.querySelectorAll('input.format-number').forEach(input => {
   input.addEventListener('blur', () => formatNumberInput(input));
 });
   
 function toggleCollapse(id) {
-  const el = document.getElementById(id);
-  el.classList.toggle("d-none");
+  document.getElementById(id).classList.toggle("d-none");
 }
+  
+document.addEventListener('DOMContentLoaded', function () {
+  // เริ่มต้น Tooltip ของ Bootstrap
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+});
   
 document.getElementById("taxForm").addEventListener("submit", function(e) {
   e.preventDefault();
