@@ -93,6 +93,7 @@ function calculateTax() {
   const totalEconomicDeduction = easyEReceipt + housingInterest + newHouseDeduction + provincialTour;
   
   // ลดหย่อนกลุ่มประกัน/เงินออม/การลงทุน
+  const socialSecurityDeduction2 = Math.min(getValue("social_for_family"), 500000);
   const socialSecurityDeduction = Math.min(getValue("socialSecurity"), 9000);
   const lifeInsuranceRaw = getValue("lifeInsurance");
   const lifeInsuranceDeduction = Math.min(lifeInsuranceRaw, 100000);
@@ -119,6 +120,7 @@ function calculateTax() {
   }
   
   const totalInsuranceInvestmentDeduction = socialSecurityDeduction +
+                                              socialSecurityDeduction2 +
                                               lifeInsuranceDeduction +
                                               healthInsuranceSelfDeduction +
                                               healthInsuranceParentsDeduction +
@@ -143,6 +145,7 @@ function calculateTax() {
   // รวมค่าลดหย่อนทั้งหมด
   const totalDeduction = totalPersonalDeduction + totalEconomicDeduction + totalInsuranceInvestmentDeduction + totalDonationDeduction;
   
+  // คำนวณภาษีที่ต้องจ่าย
   let netIncome = totalIncome - totalDeduction;
   if (netIncome < 0) netIncome = 0;
   
@@ -173,6 +176,7 @@ function calculateTax() {
   // แสดงผลใน Step 7
   document.getElementById("totalIncomeDisplay").innerText = totalIncome.toLocaleString();
   document.getElementById("totalDeductionDisplay").innerText = totalDeduction.toLocaleString();
+  document.getElementById("netIncomeDisplay").innerText = netIncome.toLocaleString();
   document.getElementById("taxDisplay").innerText = tax.toLocaleString();
   
   let taxTableHTML = "";

@@ -1,7 +1,207 @@
 /* Custom General Styles */
+/* ========== พื้นฐานของหน้าเว็บ ========== */
 body {
-  background-color: #f8f9fa;
+  background: #F0FFF5; /* พื้นหลังสีเขียวอ่อนพาสเทล */
+  color: #333333;      /* สีตัวอักษรหลัก */
+  font-family: "Prompt", sans-serif; /* หรือฟอนต์ไทยอื่น ๆ ตามชอบ */
+  margin: 0;
+  padding: 0;
 }
+
+body {
+  background-color: #F0FFF5; /* สีพื้นหลังเขียวอ่อน */
+  background-image: url("/images/Cactus_PNG_Clipart.png"); /* ใส่ path รูปตามจริง */
+  background-repeat: no-repeat;        /* ไม่ให้รูปซ้ำ */
+  background-position: 50px calc(100% - 25px);
+  background-size: 150px auto;        /* ปรับขนาดรูป */
+}
+
+
+
+/* การ์ดและ container ให้มีความโปร่งและขอบมนเล็กน้อย */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+  background: #FFFFFF;
+}
+
+/* ========== Navbar ========== */
+.navbar {
+  background-color: #E5F6E5 !important; /* ปรับพื้นหลัง navbar ให้เป็นโทนเขียวอ่อน */
+  border-bottom: 1px solid #C2DEC2;     /* เส้นคั่นบาง ๆ */
+}
+
+.navbar-brand {
+  color: #2E7D32 !important; /* สีตัวอักษรของแบรนด์ */
+  font-weight: 600;
+}
+
+.nav-link {
+  color: #2E7D32 !important;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  color: #1B5E20 !important; /* สีเข้มขึ้นเมื่อ hover หรืออยู่ในหน้าปัจจุบัน */
+}
+
+/* ========== Step Indicator ========== */
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.step {
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background-color: #A5D6A7; /* สีวงกลมสถานะขั้นตอน */
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.step.active .step-number {
+  background-color: #66BB6A; /* สีวงกลมเมื่อเป็นขั้นตอนปัจจุบัน */
+}
+
+.step-title {
+  font-size: 0.9rem;
+  color: #2E7D32;
+}
+
+/* เส้นเชื่อมระหว่าง step (ถ้าอยากให้มี) */
+.step::after {
+  content: "";
+  position: absolute;
+  top: 20px;
+  right: -50%;
+  height: 2px;
+  width: 100%;
+  background-color: #C8E6C9;
+  z-index: -1;
+}
+
+.step:last-child::after {
+  content: none;
+}
+
+/* ========== ปุ่มต่าง ๆ ========== */
+.btn {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+/* ปุ่มหลักสีเขียวเข้ม */
+.btn-dark {
+  background-color: #388E3C !important;
+  border-color: #2E7D32 !important;
+}
+
+.btn-dark:hover {
+  background-color: #2E7D32 !important;
+  border-color: #1B5E20 !important;
+}
+
+/* ปุ่มสีเขียวอ่อน */
+.btn-secondary {
+  background-color: #C8E6C9 !important;
+  border-color: #A5D6A7 !important;
+  color: #2E7D32 !important;
+}
+
+.btn-secondary:hover {
+  background-color: #A5D6A7 !important;
+  border-color: #81C784 !important;
+  color: #1B5E20 !important;
+}
+
+/* ปุ่มสีเขียวสดใส */
+.btn-success {
+  background-color: #4CAF50 !important;
+  border-color: #43A047 !important;
+}
+
+/* ปุ่มสีฟ้า */
+.btn-info {
+  background-color: #80CBC4 !important;
+  border-color: #4DB6AC !important;
+  color: #004D40 !important;
+}
+
+/* ========== ฟอร์มและช่องกรอกข้อมูล ========== */
+.form-label {
+  font-weight: 500;
+  color: #1B5E20;
+}
+
+.form-control {
+  border-radius: 6px;
+  border: 1px solid #B2DFDB;
+}
+
+.form-check-input:checked {
+  background-color: #66BB6A;
+  border-color: #66BB6A;
+}
+
+/* ========== ตารางสรุป ========== */
+.table thead th {
+  background-color: #C8E6C9;
+  color: #2E7D32;
+}
+
+.table tbody td {
+  vertical-align: middle;
+}
+
+/* ========== ส่วนของ Step 7 สรุปภาษี ========== */
+#step-7 h4, 
+#step-7 h5 {
+  color: #2E7D32;
+  font-weight: 600;
+}
+
+/* ========== ปรับแต่งส่วนพิมพ์ (print) ถ้าต้องการ ========== */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #FFFFFF;
+  }
+}
+
+/* ========== ตัวอย่างการใส่แบ็คกราวด์รูปกระบองเพชรแบบง่าย (หากต้องการ) ========== */
+/*
+body {
+  background-image: url("../images/cactus-bg.png");  // ใส่ path รูปตามจริง
+  background-repeat: no-repeat;
+  background-position: bottom right;
+  background-size: 300px; // ปรับขนาดรูป
+}
+*/
+
+/* หรือจะทำเป็นกลุ่มทรงกลมสีเขียว + ดอกสีชมพูด้วย pseudo-element ก็ได้ 
+   แล้วใช้ position absolute จัดวางด้านล่างขวาของหน้าจอตามจินตนาการ
+*/
+
 
 .step-indicator {
   display: flex;
@@ -69,7 +269,7 @@ body {
   }
   
   body {
-    font-size: 5pt;
+    font-size: 10pt;
   }
   
   /* ซ่อนปุ่มที่ไม่ต้องการแสดงในงานพิมพ์ */
