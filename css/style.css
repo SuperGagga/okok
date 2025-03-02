@@ -256,6 +256,18 @@ body {
   color: #000;
 }
 
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap;  /* ไม่ให้ขึ้นบรรทัดใหม่ */
+  overflow-x: auto;    /* เลื่อนในแนวนอนได้ */
+  white-space: nowrap;
+  padding-bottom: 10px;
+  gap: 15px;  /* เพิ่มช่องว่างระหว่าง step */
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 /* Hide elements with .no-print during printing */
 .no-print {
   display: block;

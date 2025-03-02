@@ -1,5 +1,4 @@
 let currentStep = 1;
-
 const taxBrackets = [
   { min: 0,       max: 150000,   rate: 0 },
   { min: 150001,  max: 300000,   rate: 0.05 },
@@ -42,7 +41,7 @@ function updateStep2() {
 }
 
 function calculateTax() {
-  // รายได้รวม
+  // คำนวณรายได้รวม
   const salary = getValue("salary");
   const bonus = getValue("bonus");
   const otherIncome = getValue("otherIncome");
@@ -55,7 +54,7 @@ function calculateTax() {
   const spouseDisabledDeduction = (document.getElementById("spouseEligible").checked && document.getElementById("spouseDisabled").checked) ? 60000 : 0;
   const pregnancyDeduction = Math.min(getValue("pregnancyDeduction"), 60000);
   
-  // คำนวณลดหย่อนบุตรชอบด้วยกฎหมาย
+  // คำนวณลดหย่อนบุตร
   const legalChildrenOlder = parseInt(document.getElementById("legalChildrenOlder").value) || 0;
   const legalChildrenYounger = parseInt(document.getElementById("legalChildrenYounger").value) || 0;
   let totalLegalChildren = legalChildrenOlder + legalChildrenYounger;
@@ -189,7 +188,7 @@ function calculateTax() {
   });
   document.getElementById("taxTableBody").innerHTML = taxTableHTML;
   
-  // สร้างตารางรายละเอียดลดหย่อนที่ละเอียดขึ้น
+  // สร้างตารางรายละเอียดลดหย่อน
   const deductionBreakdownHTML = `
     <table class="table table-bordered">
       <thead>
@@ -259,7 +258,7 @@ function calculateTax() {
           <td>${provincialTour.toLocaleString()}</td>
         </tr>
         <tr>
-          <th colspan="2">รวมค่าลดหย่อนสำหรับกระตุ้นเศษฐกิจ</th>
+          <th colspan="2">รวมค่าลดหย่อนสำหรับกระตุ้นเศรษฐกิจ</th>
           <th>${totalEconomicDeduction.toLocaleString()}</th>
         </tr>
         <tr>
@@ -321,7 +320,7 @@ function calculateTax() {
           <td>${generalDonation.toLocaleString()}</td>
         </tr>
         <tr>
-          <td>เงินบริจาคเพื่อการศึกษา/กีฬา/พัฒนาสังคม/สถานพยาบาล (2 เท่า)</td>
+          <td>เงินบริจาคเพื่อการศึกษา/กีฬา/พัฒนาสังคม (2 เท่า)</td>
           <td>${(2 * educationDonation).toLocaleString()}</td>
         </tr>
         <tr>
@@ -336,7 +335,6 @@ function calculateTax() {
           <th colspan="2">รวมลดหย่อนทั้งหมด</th>
           <th>${totalDeduction.toLocaleString()}</th>
         </tr>
-
       </tbody>
     </table>
   `;
@@ -349,23 +347,65 @@ function formatNumberInput(input) {
     input.value = parseFloat(value).toLocaleString();
   }
 }
-  
+
 document.querySelectorAll('input.format-number').forEach(input => {
   input.addEventListener('blur', () => formatNumberInput(input));
 });
-  
+
 function toggleCollapse(id) {
   document.getElementById(id).classList.toggle("d-none");
 }
-  
+
 document.addEventListener('DOMContentLoaded', function () {
   var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
   tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
 });
-  
+
 document.getElementById("taxForm").addEventListener("submit", function(e) {
   e.preventDefault();
   alert("ข้อมูลถูกบันทึกแล้ว (ตัวอย่าง)");
 });
+
+// ฟังก์ชันสำหรับเก็บข้อมูลลง localStorage
+function saveTaxData() {
+  const taxData = {};
+  document.querySelectorAll('input').forEach(input => {
+    taxData[input.id] = input.value;
+  });
+  localStorage.setItem('taxData', JSON.stringify(taxData));
+  alert('ข้อมูลถูกบันทึกลงในเครื่องแล้ว');
+}
+
+// ฟังก์ชันสำหรับโหลดข้อมูลจาก localStorage
+function loadTaxData() {
+  const storedData = localStorage.getItem('taxData');
+  if (storedData) {
+    const taxData = JSON.parse(storedData);
+    for (const key in taxData) {
+      const input = document.getElementById(key);
+      if (input) {
+        input.value = taxData[key];
+      }
+    }
+    alert('โหลดข้อมูลจากเครื่องเรียบร้อย');
+  } else {
+    alert('ไม่พบข้อมูลที่ถูกบันทึกไว้');
+  }
+}
+
+// ฟังก์ชันสำหรับดาวน์โหลดข้อมูลเป็นไฟล์ JSON
+function downloadTaxData() {
+  const taxData = {};
+  document.querySelectorAll('input').forEach(input => {
+    taxData[input.id] = input.value;
+  });
+  const blob = new Blob([JSON.stringify(taxData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'taxData.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
