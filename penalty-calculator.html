@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>คำนวณเบี้ยปรับและเงินเพิ่ม (Penalty Calculator)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>คำนวณค่าปรับบุคคลธรรมดา (ถ้าจ่ายไม่ทัน)</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <!-- Custom CSS -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap">
+
   <link rel="stylesheet" href="css/style.css">
-  <!-- Chart.js (หากต้องการแสดงกราฟเพิ่มเติม) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- Navbar (ไม่ต้องแสดงในงานพิมพ์) -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary no-print">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
     <div class="container">
       <a class="navbar-brand" href="index.html">Tax Tools</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -24,73 +22,34 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link" href="index.html">หน้าแรก</a></li>
-          <li class="nav-item"><a class="nav-link active" href="penalty-calculator.html">เบี้ยปรับ/เงินเพิ่ม</a></li>
           <li class="nav-item"><a class="nav-link" href="tax-calculator.html">คำนวณภาษี</a></li>
+          <li class="nav-item"><a class="nav-link active" href="penalty-calculator.html">คำนวณค่าปรับ</a></li>
         </ul>
       </div>
     </div>
   </nav>
   
   <!-- Content -->
-  <div class="container py-4">
-    <!-- อธิบายบทลงโทษเบื้องต้น -->
-    <div class="card mb-4">
-      <div class="card-header bg-danger text-white">
-        รายละเอียดบทลงโทษภาษี
-      </div>
-      <div class="card-body">
-        <p>
-          หากไม่ชำระภาษีภายในกำหนด จะต้องเสียเงินเพิ่มอีกร้อยละ 1.5 ต่อเดือน (เศษของเดือนนับเป็น 1 เดือน)
-          นอกจากนี้ หากไม่ยื่นแบบแสดงรายการหรือชำระภาษีไม่ครบถ้วน เจ้าพนักงานตรวจสอบจะออกหมายเรียก
-          และอาจมีเบี้ยปรับเพิ่มขึ้นถึง 1 หรือ 2 เท่าของภาษีที่ต้องชำระ อีกทั้งยังมีความเสี่ยงทางอาญาด้วย
-        </p>
-        <p>
-          หน้าเพจนี้จะแสดงตารางที่ระบุว่าในแต่ละช่วงเวลาที่ชำระล่าช้า (เดือน) จะต้องโดนปรับเพิ่มเท่าไหร่
-          เพื่อให้เห็นภาพความร้ายแรงจากการชำระภาษีล่าช้า
-        </p>
-      </div>
-    </div>
-    
-    <!-- แบบฟอร์มกรอกข้อมูลสำหรับการคำนวณ -->
-    <div class="card mb-4">
-      <div class="card-header">
-        กรอกข้อมูลภาษีที่ต้องชำระและระยะเวลาชำระล่าช้า
-      </div>
-      <div class="card-body">
+  <div class="container py-5">
+    <div class="card mx-auto shadow" style="max-width: 600px;">
+      <div class="card-body p-4">
+        <h2 class="text-center mb-4">คำนวณค่าปรับบุคคลธรรมดา (ถ้าจ่ายไม่ทัน)</h2>
         <form id="penaltyForm">
           <div class="mb-3">
-            <label class="form-label">
-              ภาษีที่ต้องชำระต่อปี (บาท)
-              <span data-bs-toggle="tooltip" title="กรอกจำนวนภาษีที่ต้องชำระตามใบแจ้งหนี้">
-                <i class="bi bi-question-circle"></i>
-              </span>
-            </label>
-            <input type="text" class="form-control format-number" id="taxDue" placeholder="กรอกภาษีที่ต้องชำระ">
+            <label class="form-label">ภาษีที่ต้องชำระ (บาท)</label>
+            <input type="number" class="form-control" id="baseTax" placeholder="กรอกยอดภาษีที่ต้องชำระ">
           </div>
           <div class="mb-3">
-            <label class="form-label">
-              ระยะเวลาชำระล่าช้า (เดือน)
-              <span data-bs-toggle="tooltip" title="กรอกจำนวนเดือนที่ชำระภาษีล่าช้า">
-                <i class="bi bi-question-circle"></i>
-              </span>
-            </label>
-            <input type="number" class="form-control" id="delayMonths" placeholder="กรอกจำนวนเดือน">
+            <label class="form-label">จำนวนวันที่ชำระล่าช้า</label>
+            <input type="number" class="form-control" id="daysLate" placeholder="กรอกจำนวนวันล่าช้า">
           </div>
-          <button type="button" class="btn btn-primary" onclick="calculatePenalty()">คำนวณเบี้ยปรับ</button>
+          <div class="text-end">
+            <button type="button" class="btn btn-dark" onclick="calculatePenalty()">คำนวณค่าปรับ</button>
+          </div>
         </form>
-      </div>
-    </div>
-    
-    <!-- ผลการคำนวณ -->
-    <div class="card mb-4 d-none" id="resultCard">
-      <div class="card-header">
-        ผลการคำนวณเบี้ยปรับและเงินเพิ่ม
-      </div>
-      <div class="card-body">
-        <div id="penaltyTableContainer"></div>
-      </div>
-      <div class="card-footer no-print">
-        <button class="btn btn-info" onclick="window.print()">ปริ้นหน้าสรุป</button>
+        <div id="result" class="mt-4">
+          <!-- ตารางแสดงผลจะถูกแทรกที่นี่ -->
+        </div>
       </div>
     </div>
   </div>
