@@ -409,3 +409,4 @@ function downloadTaxData() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
