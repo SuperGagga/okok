@@ -410,3 +410,10 @@ function downloadTaxData() {
   URL.revokeObjectURL(url);
 }
 
+
+document.querySelectorAll('.step').forEach((stepEl, index) => {
+  stepEl.addEventListener('click', () => {
+    // index เริ่มที่ 0 จึงต้อง +1 เพื่อให้ตรงกับหมายเลขขั้นตอน
+    goToStep(index + 1);
+  });
+});
