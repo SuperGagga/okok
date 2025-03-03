@@ -29,6 +29,9 @@
     }
     
     /* ========== Navbar ========== */
+    html {
+      scroll-padding-top: 70px; /* ปรับค่าให้ตรงกับความสูงของ Navbar */
+    }
     .navbar {
       background-color: #E5F6E5 !important;
       border-bottom: 1px solid #C2DEC2;
