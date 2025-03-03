@@ -22,6 +22,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">หน้าหลัก</a></li>
           <li class="nav-item"><a class="nav-link" href="tax-calculator.html">คำนวณภาษี</a></li>
           <li class="nav-item"><a class="nav-link" href="penalty-calculator.html">คำนวณค่าปรับ</a></li>
         </ul>
@@ -99,6 +100,7 @@
               <input type="text" class="form-control format-number" id="otherIncome" placeholder="รายได้อื่น ๆ">
             </div>
             <div class="text-end">
+              <!-- เพิ่ม input สำหรับเลือกไฟล์ JSON -->
               <button type="button" class="btn btn-info" onclick="loadTaxData()">โหลดข้อมูล</button>
               <button type="button" class="btn btn-warning" onclick="goToStep(7)">ถัดไปอันสุดท้าย</button>
               <button type="button" class="btn btn-dark" onclick="goToStep(2)">ถัดไป</button>
@@ -470,7 +472,7 @@
             <div class="d-flex justify-content-between no-print">
               <button type="button" class="btn btn-danger" onclick="goToStep(1)">กลับไปจุดเริ่มต้น</button>
               <button type="button" class="btn btn-secondary" onclick="goToStep(6)">ย้อนกลับ</button>
-
+              
               <div>
                 <button type="button" class="btn btn-warning" onclick="saveTaxData()">บันทึกข้อมูล</button>
                 <button type="button" class="btn btn-info" onclick="loadTaxData()">โหลดข้อมูล</button>
