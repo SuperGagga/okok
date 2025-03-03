@@ -417,3 +417,4 @@ document.querySelectorAll('.step').forEach((stepEl, index) => {
     goToStep(index + 1);
   });
 });
+
